@@ -3,7 +3,7 @@ package common
 import "time"
 
 const (
-	ResourceName   string = "x.com/colocation-memory"
+	ResourceName   string = "test.com/colocation-memory"
 	DeviceSocket   string = "colocation-memory.sock"
 	ConnectTimeout        = time.Second * 5
 	BlockSize             = 512 * 1024 * 1024 // 512MB

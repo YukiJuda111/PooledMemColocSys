@@ -276,13 +276,16 @@ func (d *DeviceMonitor) removeColocDevices(removeCount int) {
 				}
 			}
 
-			// TODO: 先看看NUMA节点的内存是否充足，不充足直接兜底迁移
+			// 先看看NUMA节点的内存是否充足，不充足直接兜底迁移
+			// 这段逻辑因为根据反亲和性调度，没有其他节点进行调度，暂时不启用
+
 			// cxlNodeInfo, err := memory_manager.GetNumaMemInfo(2)
 			// if err != nil {
 			// 	klog.Errorf("[adjustDevices] 获取NUMA节点内存信息失败: %v", err)
 			// }
 			// if cxlNodeInfo.Free < common.BlockSize*uint64(len(d.mm.Pod2PodInfo[pod.PodName].SwapColocIds)) {
-			// 	klog.Info("[adjustDevices] NUMA节点内存不足,兜底迁移")
+			// 	klog.Info("[adjustDevices] NUMA节点内存不足,兜底迁移,NUMA节点内存信息: ", cxlNodeInfo, "Pod信息: ", d.mm.Pod2PodInfo[pod.PodName])
+			// // TODO: 这里别忘了修改yaml文件的路径
 			// 	fallback_migrator.MigratePodToAnotherNode(fmt.Sprintf("/home/liuyang/i-device-plugin-main/deploy/%s.yaml", pod.PodName))
 			// 	klog.Info("[adjustDevices] Pod迁移完成")
 			// 	continue
