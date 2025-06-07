@@ -93,7 +93,7 @@ Allocatable:
 这时候117节点的程序的日志系统也应该正常运行了
 
 部署一个Pod测试：
-在118节点新建配置文件`test.yaml`，并部署在集群中
+在118节点新建配置文件`test.yaml`，并部署在集群中，这里检查resource中的名称是否和上面node可用的资源名称一致，例如这里是`test.com/colocation-memory`
 
 ```yaml
 apiVersion: v1
@@ -110,15 +110,32 @@ spec:
       command: ["sh", "-c", "echo Hello, Kubernetes! && sleep 3600"]
       resources:
         requests:
-          xxx.com/colocation-memory: "3"
+          test.com/colocation-memory: "3"
         limits:
-          xxx.com/colocation-memory: "3"
+          test.com/colocation-memory: "3"
 ```
 
 Pod启动成功时应该观测到的现象：
+master节点上
 
 ```bash
-# (master)kubectl get pods 
+# (master)kubectl get pods -n colocation-memory
+NAME       READY   STATUS    RESTARTS   AGE
+test-pod   1/1     Running   0          81s
+
+# (master)kubectl exec  test-pod -n colocation-memory -- env | grep test.com/colocation-memory
+test.com/colocation-memory=CM-4617e80b-784c-474f-af77-ae0d2b9e389f,CM-1aeb3175-97aa-4e3f-88fa-70ab7789dee9,CM-b2934c44-4227-43f7-a450-7273d8e960d7
+```
+
+运行日志中
+
+```bash
+I0607 18:12:03.553528 1155455 pods_monitor.go:303] [handlePodAdded] Pod created: colocation-memory/test-pod
+I0607 18:12:03.553770 1155455 api.go:88] [Allocate] received request: CM-4617e80b-784c-474f-af77-ae0d2b9e389f,CM-1aeb3175-97aa-4e3f-88fa-70ab7789dee9,CM-b2934c44-4227-43f7-a450-7273d8e960d7
+I0607 18:12:05.893678 1155455 pods_monitor.go:114] [waitForPodAndFetchEnv] Pod2PodInfo update: &{test-pod [CM-4617e80b-784c-474f-af77-ae0d2b9e389f CM-1aeb3175-97aa-4e3f-88fa-70ab7789dee9 CM-b2934c44-4227-43f7-a450-7273d8e960d7] 1155756 []}
+I0607 18:12:05.893879 1155455 pods_monitor.go:126] [setCgroupsMemoryLimit] Read cgroup file: 0::/kubepods.slice/kubepods-besteffort.slice/kubepods-besteffort-podc1bfa25a_6d80_4310_9cb4_8aed729ca1b4.slice/cri-containerd-fef3b73e4609257c5373fd0e21e670e0c1c599ada4e37ef6a35b1c42d8c7c625.scope
+I0607 18:12:05.893942 1155455 pods_monitor.go:157] [setCgroupsMemoryLimit] Set memory limit for PID 1155756 to 1610612736 bytes
+I0607 18:12:09.147473 1155455 memory_manager.go:141] [getSystemMemoryInfo] k8sOnlineMemoryUsage:761909248
 ```
 
 ## 注意事项
