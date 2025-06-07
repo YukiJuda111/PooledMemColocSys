@@ -58,6 +58,12 @@ const (
 cat /etc/kubernetes/admin.conf
 ```
 
+最后检查池化内存在系统中是NUMA2
+```bash
+# (worker)
+numactl --hardware
+```
+
 ## QUICK START
 
 关于device plugin相关的原理及规范可以参考 [https://www.lixueduan.com/posts/kubernetes/21-device-plugin/](https://www.lixueduan.com/posts/kubernetes/21-device-plugin/)
